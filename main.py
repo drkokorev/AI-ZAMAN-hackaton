@@ -1,8 +1,9 @@
 from openai import OpenAI
 import csv
 import re
+import json
 
-API_KEY = "YOUR_API_KEY"
+API_KEY = "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"
 INPUT_FILE = "dev_inputs.tsv"
 OUTPUT_FILE = "inputs_updated.tsv"
 
@@ -10,67 +11,19 @@ client = OpenAI(api_key=API_KEY, base_url="https://openrouter.ai/api/v1")
 
 
 # --- Словарь мягких замен токсичных слов ---
-BAD_TO_NEUTRAL = {
-    "тиле": "ялгышучы",
-    "тилә": "ялгышучы",
-    "ахмак": "дөрес аңламаучы",
-    "мәхлук": "начар кеше",
-    "җүләр": "адашкан кеше",
-    "надан": "тәҗрибәсез",
-    "дурак": "ялгышучы",
-    "тупас": "киресенчә сөйләүче",
-    "пычрак": "начар",
-    "хайван": "кеше",
-    "терлек": "кеше",
-    "дуңгыз": "кешеләр",
-    "идиот": "ялгышучы",
-    "дебил": "ялгышучы",
-    "скотина": "начар кеше",
-    "урод": "кеше",
-    "кутак" : "әгъза",
-    "кутакбаш" : "начарлык",
-    "кут" : "арт",
-    "жопа" : "арт",
-    "бля" : "әй",
-    "сука" : "явыз",
-    "ангыра" : "тәҗрибәсез",
-    "тиле" : "аңгырарак",
-    "ахуел" : "шаккаттым",
-    "охуел" : "аптырадым",
-    "маржа" : "рус",
-    "мал" : "кеше",
-    "козёл" : "тупас",
-    "дебил" : "аңсыз",
-    "дурак" : "аңламаучан",
-    "сволочь" : "явыз",
-    "хуйня" : "бушлык",
-    "бамбук" : "игътибарсыз",
-    "тормоз" : "әкрен",
-    "шакшы" : "ямьсез",
-    "корт" : "сәер",
-    "черек" : "зәгыйфь",
-    "ятим" : "мескен",
-    "шайтан" : "начар",
-    "кәкре" : "туры",
-    "сукыр" : "күрми",
-    "саңгырау" : "ишетми",
-    "сасы" : "начар",
-    "әтәч" : "данбел",
-    "пычрак" : "чиста түгел",
-    "яртыакыл" : "аңсыз",
-    "наглый" : "үзсүзле",
-    "долбоёб" : "аңгыра",
-    "тырнак" : "бәләкәй",
-    }
+def load_replacements(path="replacements.json"):
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
 
 # ——— Функция словарной замены ———
-def apply_dictionary_replacement(text):
+def apply_replacements(text):
     lowered = text.lower()
-    for bad, good in BAD_TO_NEUTRAL.items():
+    for bad, good in replacements.items():
         lowered = re.sub(rf"\b{bad}\b", good, lowered)
     return lowered
 
-
+replacements = load_replacements()
 # ---- Создание диалоговой сессии ChatGPT ----
 messages = [
     {
@@ -119,7 +72,7 @@ with open(INPUT_FILE, "r", encoding="utf-8") as f_in, \
 
         if toxic:
             # 1) локальная словарная замена
-            preclean = apply_dictionary_replacement(toxic)
+            preclean = apply_replacements(toxic)
 
             # 2) отправка в ChatGPT
             clean = detoxify_with_chatgpt(preclean)
