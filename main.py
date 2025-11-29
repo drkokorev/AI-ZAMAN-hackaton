@@ -3,7 +3,7 @@ import csv
 import re
 import json
 
-API_KEY = "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"
+API_KEY = "your api key"
 INPUT_FILE = "dev_inputs.tsv"
 OUTPUT_FILE = "inputs_updated.tsv"
 
