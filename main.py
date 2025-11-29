@@ -6,7 +6,7 @@ API_KEY = "YOUR_API_KEY"
 INPUT_FILE = "dev_inputs.tsv"
 OUTPUT_FILE = "inputs_updated.tsv"
 
-client = OpenAI(api_key="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", base_url="https://openrouter.ai/api/v1")
+client = OpenAI(api_key=API_KEY, base_url="https://openrouter.ai/api/v1")
 
 
 # --- Словарь мягких замен токсичных слов ---
